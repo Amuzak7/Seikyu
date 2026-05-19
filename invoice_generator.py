@@ -4,6 +4,8 @@ PDF : fpdf2（純 Python）を使用。WeasyPrint + GTK が利用可能な環境
 Word: python-docx を使用。
 """
 import os
+import glob
+import platform
 import base64
 from pathlib import Path
 
@@ -14,10 +16,39 @@ TEMPLATES_DIR = Path("templates")
 ACCENT   = "1E4D7B"          # 紺色（16進）
 BLUE_RGB = (30, 77, 123)     # 同・RGB
 
-# Windows 日本語フォント候補（優先順）
-_JP_REGULAR_FONTS = ["YuGothR.ttc", "meiryo.ttc", "msgothic.ttc"]
-_JP_BOLD_FONTS    = ["YuGothB.ttc", "YuGothM.ttc", "meiryo.ttc", "msgothic.ttc"]
-_FONT_DIR = r"C:\Windows\Fonts"
+# 日本語フォント候補（Windows / Linux 両対応、優先順）
+_JP_REGULAR_FONTS = [
+    # Windows
+    "YuGothR.ttc", "meiryo.ttc", "msgothic.ttc",
+    # Linux (Noto CJK / Streamlit Community Cloud)
+    "NotoSansCJK-Regular.ttc", "NotoSansCJKjp-Regular.ttf",
+    "NotoSansCJK-Regular.ttf", "NotoSerifCJK-Regular.ttc",
+    # Linux (IPA / VL Gothic fallback)
+    "ipag.ttf", "ipagp.ttf", "VL-Gothic-Regular.ttf",
+]
+_JP_BOLD_FONTS = [
+    # Windows
+    "YuGothB.ttc", "YuGothM.ttc", "meiryo.ttc", "msgothic.ttc",
+    # Linux (Noto CJK)
+    "NotoSansCJK-Bold.ttc", "NotoSansCJKjp-Bold.ttf",
+    "NotoSansCJK-Bold.ttf", "NotoSerifCJK-Bold.ttc",
+    # Linux fallback (bold なければ regular を流用)
+    "NotoSansCJK-Regular.ttc", "NotoSansCJKjp-Regular.ttf",
+    "ipag.ttf", "VL-Gothic-Regular.ttf",
+]
+
+# OS 別フォント検索ディレクトリ
+def _font_dirs() -> list[str]:
+    if platform.system() == "Windows":
+        return [r"C:\Windows\Fonts"]
+    # Linux (Streamlit Community Cloud / Ubuntu) + macOS
+    return [
+        "/usr/share/fonts",
+        "/usr/local/share/fonts",
+        os.path.expanduser("~/.local/share/fonts"),
+        "/System/Library/Fonts",               # macOS
+        os.path.expanduser("~/Library/Fonts"), # macOS ユーザー
+    ]
 
 
 # ─── 共通ユーティリティ ──────────────────────────────────────
@@ -42,12 +73,28 @@ def _make_filename(customer_name: str, issue_date: str | None, invoice_number: s
 
 
 def _find_font(candidates: list[str]) -> str:
+    """OS に応じてフォントディレクトリを再帰検索し、最初に見つかったパスを返す。"""
     for name in candidates:
-        path = os.path.join(_FONT_DIR, name)
-        if os.path.exists(path):
-            return path
+        for font_dir in _font_dirs():
+            if not os.path.isdir(font_dir):
+                continue
+            # 直下を確認（Windows はフラット構造）
+            direct = os.path.join(font_dir, name)
+            if os.path.exists(direct):
+                return direct
+            # サブディレクトリも再帰検索（Linux は深い階層）
+            found = glob.glob(os.path.join(font_dir, "**", name), recursive=True)
+            if found:
+                return found[0]
+
+    os_hint = (
+        r"C:\Windows\Fonts に YuGothR.ttc / meiryo.ttc を確認してください。"
+        if platform.system() == "Windows"
+        else "sudo apt-get install -y fonts-noto-cjk を実行してください。"
+    )
     raise RuntimeError(
-        f"日本語フォントが見つかりません。{_FONT_DIR} に {candidates} のいずれかを配置してください。"
+        f"日本語フォントが見つかりません。\n{os_hint}\n"
+        f"（検索候補: {candidates[:4]}）"
     )
 
 

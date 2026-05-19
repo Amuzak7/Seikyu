@@ -5,21 +5,22 @@
   <img src="https://img.shields.io/badge/Streamlit-1.32%2B-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit">
   <img src="https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite&logoColor=white" alt="SQLite">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
-  <img src="https://img.shields.io/badge/Demo-Live-brightgreen" alt="Demo">
 </p>
 
 <p align="center">
   小規模事業者向けの日本語請求書作成・管理ツールです。<br>
-  顧客管理から請求書の作成・PDF/Word出力・履歴管理まで、ブラウザ上でシンプルに操作できます。
+  顧客管理から請求書の作成・PDF/Word 出力・履歴管理まで、ブラウザ上でシンプルに操作できます。
 </p>
 
----
+<p align="center">
+  <a href="https://seikyu-demo.streamlit.app"><strong>▶ Live Demo</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#ローカル環境での起動">ローカル起動</a>
+  &nbsp;·&nbsp;
+  <a href="#デプロイ">デプロイ</a>
+</p>
 
-## デモ
-
-> **[▶ Live Demo](https://seikyu.streamlit.app)** ← デプロイ後に URL を更新してください
-
-デモ版はデータがアプリ再起動時にリセットされます。実際の業務データは保存されません。
+> **デモ版について**：デモ環境のデータはアプリ再起動時にリセットされます。実際の業務データは保存されません。
 
 ---
 
@@ -28,9 +29,9 @@
 | 機能 | 説明 |
 |------|------|
 | 👥 **顧客管理** | 顧客の登録・編集・無効化・削除。無効化で請求書履歴を保持したまま非表示化 |
-| 📝 **請求書作成** | 明細入力・自動採番・消費税（10% / 8%軽減税率）の自動計算 |
-| 📄 **PDF出力** | A4サイズの日本語PDFを即時生成（fpdf2 使用） |
-| 📘 **Word出力** | `.docx` 形式で生成（python-docx 使用） |
+| 📝 **請求書作成** | 明細入力・自動採番（INV-YYYYMMDD-XXX）・消費税（10% / 8% 軽減税率）の自動計算 |
+| 📄 **PDF 出力** | A4 サイズの日本語 PDF を即時生成（fpdf2 使用・Windows/Linux 両対応） |
+| 📘 **Word 出力** | `.docx` 形式で生成（python-docx 使用） |
 | 📋 **請求書履歴** | 検索・絞込・再ダウンロード対応 |
 | ⚙️ **設定** | 自社情報・振込先・ロゴ画像（PNG/JPG）の管理 |
 | 🧾 **インボイス対応** | 適格請求書発行事業者登録番号の表示 |
@@ -39,24 +40,21 @@
 
 ## スクリーンショット
 
-> ※ デプロイ後にスクリーンショットを追加してください。
-
-| 請求書作成 | 顧客一覧 | 設定 |
-|:---:|:---:|:---:|
-| *(screenshot)* | *(screenshot)* | *(screenshot)* |
+> デプロイ後にスクリーンショットを追加することを推奨します。
 
 ---
 
 ## 技術スタック
 
-| カテゴリ | 使用技術 |
-|----------|---------|
-| フレームワーク | [Streamlit](https://streamlit.io/) |
-| データベース | SQLite（通常モード: ファイル / デモモード: インメモリ） |
-| PDF生成 | [fpdf2](https://py-pdf.github.io/fpdf2/) |
-| Word生成 | [python-docx](https://python-docx.readthedocs.io/) |
+| カテゴリ | 技術 |
+|----------|------|
+| フロントエンド / フレームワーク | [Streamlit](https://streamlit.io/) |
+| データベース | SQLite（通常: ファイル永続化 / デモ: インメモリ） |
+| PDF 生成 | [fpdf2](https://py-pdf.github.io/fpdf2/)（純 Python・GTK 不要） |
+| Word 生成 | [python-docx](https://python-docx.readthedocs.io/) |
 | データ処理 | [pandas](https://pandas.pydata.org/) |
-| 環境変数管理 | [python-dotenv](https://github.com/theskumar/python-dotenv) |
+| 環境変数 | [python-dotenv](https://github.com/theskumar/python-dotenv) |
+| 言語 | Python 3.10+ |
 
 ---
 
@@ -65,9 +63,8 @@
 ### 必要環境
 
 - Python 3.10 以上
-- pip
 
-### セットアップ手順
+### セットアップ
 
 ```bash
 # 1. リポジトリをクローン
@@ -85,63 +82,89 @@ source .venv/bin/activate
 # 3. 依存パッケージをインストール
 pip install -r requirements.txt
 
-# 4. 環境変数ファイルを作成
+# 4. 環境変数ファイルを作成（任意）
 cp .env.example .env
 
-# 5. アプリを起動
+# 5. 起動
 streamlit run app.py
 ```
 
 ブラウザが自動で開きます（`http://localhost:8501`）。
 
-### デモモードで起動する場合
+### デモモードで起動
 
 ```bash
-# .env を編集して DEMO_MODE=true に設定するか、
-# 環境変数を直接指定して起動
 DEMO_MODE=true streamlit run app.py
 ```
 
 ---
 
-## 初回セットアップ
+## デプロイ
 
-1. アプリを起動し、左メニューの **⚙️ 設定** を選択
-2. **「自社情報」タブ** で会社名・住所・電話番号を入力して保存
-3. 任意：**「振込先」タブ** で銀行口座情報を入力
-4. 任意：**「ロゴ」タブ** でロゴ画像（PNG/JPG）をアップロード
-5. **👥 顧客一覧** から請求先顧客を登録
-6. **📝 請求書作成** で請求書を作成・出力
+### プラットフォーム比較
+
+| | Streamlit Community Cloud | Render | Railway |
+|--|:--:|:--:|:--:|
+| 無料枠 | ✅ 永続無料 | ✅ あり（15分スリープ） | ✅ あり（月$5クレジット） |
+| 設定の簡単さ | ⭐⭐⭐ | ⭐⭐ | ⭐⭐ |
+| Streamlit 最適化 | ✅ 専用 | ❌ 汎用 | ❌ 汎用 |
+| Secrets 管理 | ✅ 内蔵 | ✅ 環境変数 | ✅ 環境変数 |
+| カスタムドメイン | ❌（有料プランのみ） | ✅ | ✅ |
+
+**推奨：Streamlit Community Cloud**
+Streamlit 専用ホスティングのため設定ファイル不要。GitHub リポジトリと直接連携し、`main` ブランチへの push で自動デプロイされます。
 
 ---
 
-## デプロイ（Streamlit Community Cloud）
+### Streamlit Community Cloud（推奨）
 
-このアプリは **[Streamlit Community Cloud](https://share.streamlit.io/)** で無料でホスティングできます。
+**必要なもの**：GitHub アカウント・本リポジトリへのアクセス
 
-### 手順
+**手順：**
 
-1. [share.streamlit.io](https://share.streamlit.io/) にアクセスし、GitHubアカウントでサインイン
-2. **「New app」** をクリック
-3. リポジトリ `Amuzak7/Seikyu`・ブランチ `main`・メインファイル `app.py` を選択
-4. **「Advanced settings」** → **Secrets** に以下を入力：
+1. [share.streamlit.io](https://share.streamlit.io/) にアクセスし、GitHub アカウントでサインイン
+2. **「Create app」** をクリック
+3. 以下を設定：
+   - **Repository**: `Amuzak7/Seikyu`
+   - **Branch**: `main`
+   - **Main file path**: `app.py`
+4. **「Advanced settings」** を開き、**Secrets** に以下を入力：
 
 ```toml
 DEMO_MODE = "true"
 ```
 
-5. **「Deploy!」** をクリック
+5. **「Deploy!」** → 2〜3 分でデプロイ完了
 
-デプロイ完了後（通常 2〜3 分）、公開 URL が発行されます。
+デプロイ後、`https://[your-app-name].streamlit.app` の URL が発行されます。  
+上部の Live Demo リンクをその URL に更新してください。
 
-### デプロイ後の動作確認
+---
+
+### Render（代替）
+
+`render.yaml` が含まれているため、以下の手順のみで完了します。
+
+1. [render.com](https://render.com/) にサインイン
+2. **「New +」→「Web Service」** を選択
+3. GitHub リポジトリ `Amuzak7/Seikyu` を接続
+4. **「Use render.yaml」** を選択 → **「Create Service」**
+
+環境変数 `DEMO_MODE=true` は `render.yaml` に設定済みです。
+
+> ⚠️ Render 無料枠は 15 分間アクセスがないとスリープします。
+
+---
+
+### デプロイ後の動作確認チェックリスト
 
 - [ ] トップページが表示される
-- [ ] ⚙️ 設定から自社情報を登録できる
-- [ ] 👥 顧客一覧から顧客を登録できる
-- [ ] 📝 請求書作成から請求書を作成・保存できる
-- [ ] PDF / Word ダウンロードが動作する
-- [ ] 📋 請求書履歴から過去の請求書が確認できる
+- [ ] ⚙️ 設定 → 自社情報を登録できる
+- [ ] 👥 顧客一覧 → 顧客を登録できる
+- [ ] 📝 請求書作成 → 請求書を作成・保存できる
+- [ ] PDF ダウンロードが正常に動作する
+- [ ] Word ダウンロードが正常に動作する
+- [ ] 📋 請求書履歴 → 過去の請求書が確認できる
 - [ ] アプリを再起動するとデータがリセットされる（デモ版確認）
 
 ---
@@ -150,8 +173,8 @@ DEMO_MODE = "true"
 
 | 変数名 | デフォルト | 説明 |
 |--------|-----------|------|
-| `DEMO_MODE` | `false` | `true` でデモモード（起動時にDBリセット・インメモリSQLite使用） |
-| `DB_PATH` | `seikyu.db` | データベースファイルのパス（通常モードのみ有効） |
+| `DEMO_MODE` | `false` | `true` でデモモード（起動時 DB リセット・インメモリ SQLite） |
+| `DB_PATH` | `seikyu.db` | DB ファイルのパス（通常モードのみ有効） |
 
 `.env.example` をコピーして `.env` を作成してください。`.env` は `.gitignore` で除外済みです。
 
@@ -165,18 +188,18 @@ Seikyu/
 ├── database.py             # SQLite データベース層（CRUD・デモモード対応）
 ├── models.py               # データクラス定義（CompanyInfo, Customer, Invoice）
 ├── utils.py                # 採番・合計計算ユーティリティ
-├── invoice_generator.py    # PDF・Word生成モジュール
+├── invoice_generator.py    # PDF・Word 生成（Windows/Linux 両対応）
 ├── pages/
-│   ├── customers.py        # 顧客管理ページ（無効化・検索対応）
-│   ├── invoice_create.py   # 請求書作成ページ
-│   ├── invoice_history.py  # 請求書履歴ページ
-│   └── settings.py         # 設定ページ（自社情報・振込先・ロゴ）
+│   ├── customers.py        # 顧客管理（無効化・検索対応）
+│   ├── invoice_create.py   # 請求書作成
+│   ├── invoice_history.py  # 請求書履歴
+│   └── settings.py         # 設定（自社情報・振込先・ロゴ）
 ├── templates/
-│   └── invoice_pdf.html    # PDF用HTMLテンプレート（WeasyPrint対応）
+│   └── invoice_pdf.html    # PDF 用 HTML テンプレート（WeasyPrint 対応）
 ├── .streamlit/
 │   └── config.toml         # Streamlit テーマ・サーバー設定
-├── static/                 # ロゴ画像の保存先（.gitignore除外）
-├── invoices/               # 生成ファイルの保存先（.gitignore除外）
+├── packages.txt            # Streamlit Cloud 用 Linux パッケージ（日本語フォント）
+├── render.yaml             # Render デプロイ設定
 ├── .env.example            # 環境変数サンプル
 ├── requirements.txt        # 依存パッケージ
 └── USER_GUIDE.md           # ユーザーガイド（非技術者向け）
@@ -186,9 +209,9 @@ Seikyu/
 
 ## データについて
 
-- 通常モードのデータは `seikyu.db`（SQLiteファイル）に保存されます（`.gitignore` 除外済み）
-- デモモードのデータはプロセス内メモリに保存され、**アプリ再起動でリセット**されます
-- 生成した PDF/Word は `invoices/` フォルダに、ロゴは `static/logo.png` に保存されます
+- **通常モード**：データは `seikyu.db`（SQLite ファイル）に保存されます（`.gitignore` 除外済み）
+- **デモモード**：データはプロセス内メモリに保存され、**アプリ再起動でリセット**されます
+- 生成した PDF/Word は `invoices/` に、ロゴは `static/logo.png` に保存されます
 - `.env` は絶対に Git にコミットしないでください（`.gitignore` 除外済み）
 
 ---

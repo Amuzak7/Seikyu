@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: seikyu
+    runtime: python
+    plan: free
+    buildCommand: apt-get install -y fonts-noto-cjk && pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true
+    envVars:
+      - key: DEMO_MODE
+        value: "true"
+      - key: PYTHON_VERSION
+        value: "3.11.0"
