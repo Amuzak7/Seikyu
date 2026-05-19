@@ -1,0 +1,16 @@
+[server]
+# Streamlit Community Cloud では headless=true が推奨
+headless = true
+enableCORS = false
+enableXsrfProtection = true
+
+[browser]
+# ポート・ホスト設定（Cloud 側が上書きするため参考値）
+gatherUsageStats = false
+
+[theme]
+primaryColor     = "#1e4d7b"
+backgroundColor  = "#ffffff"
+secondaryBackgroundColor = "#f0f4f8"
+textColor        = "#1a1a2e"
+font             = "sans serif"

@@ -1,0 +1,20 @@
+# 改行コードを自動正規化
+* text=auto
+
+# Python / テキストファイルは LF で統一
+*.py   text eol=lf
+*.md   text eol=lf
+*.txt  text eol=lf
+*.toml text eol=lf
+*.html text eol=lf
+*.example text eol=lf
+
+# バイナリファイルは変換しない
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.docx binary
+*.db   binary

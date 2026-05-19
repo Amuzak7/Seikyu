@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 16mm 18mm 20mm 18mm;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Yu Gothic', 'Meiryo', 'MS Gothic', 'Hiragino Kaku Gothic ProN', sans-serif;
+      font-size: 9.5pt;
+      color: #1a1a1a;
+      line-height: 1.55;
+    }
+
+    /* ── ヘッダー ────────────────────────────────────────── */
+    .header-tbl { width: 100%; border-collapse: collapse; padding-bottom: 8pt; border-bottom: 2pt solid #1e4d7b; margin-bottom: 10pt; }
+    .header-tbl td { vertical-align: bottom; }
+    .logo-area img  { max-width: 130pt; max-height: 50pt; }
+    .logo-area span { font-size: 12pt; font-weight: bold; color: #1e4d7b; }
+    .title-area     { text-align: right; }
+    .invoice-title  { font-size: 22pt; font-weight: bold; color: #1e4d7b; letter-spacing: 0.15em; }
+    .reg-num        { font-size: 8pt; color: #555; margin-top: 3pt; }
+
+    /* ── 請求書番号・日付 ────────────────────────────────── */
+    .meta-tbl          { border-collapse: collapse; margin-bottom: 10pt; }
+    .meta-tbl td       { padding: 2pt 0; font-size: 9pt; }
+    .meta-tbl .m-label { color: #666; width: 72pt; }
+    .meta-tbl .m-val   { font-weight: bold; }
+
+    /* ── 顧客・自社情報 ──────────────────────────────────── */
+    .parties-tbl       { width: 100%; border-collapse: collapse; margin-bottom: 12pt; }
+    .parties-tbl td    { vertical-align: top; }
+    .col-cust          { width: 54%; }
+    .col-company       { width: 46%; text-align: right; font-size: 8.5pt; line-height: 1.7; }
+    .cust-name         { font-size: 14pt; font-weight: bold; border-bottom: 1.5pt solid #1e4d7b; padding-bottom: 4pt; margin-bottom: 3pt; }
+    .cust-addr         { font-size: 8.5pt; color: #444; }
+    .company-name-bold { font-size: 11pt; font-weight: bold; }
+
+    /* ── ご請求金額ハイライト ────────────────────────────── */
+    .total-highlight {
+      text-align: right;
+      font-size: 13pt;
+      font-weight: bold;
+      color: #1e4d7b;
+      background: #eff3f8;
+      border-left: 4pt solid #1e4d7b;
+      padding: 6pt 10pt;
+      margin-bottom: 12pt;
+    }
+
+    /* ── 明細テーブル ────────────────────────────────────── */
+    .items-tbl           { width: 100%; border-collapse: collapse; margin-bottom: 4pt; font-size: 9pt; }
+    .items-tbl th        { background: #1e4d7b; color: #fff; padding: 5pt 6pt; font-weight: bold; font-size: 8.5pt; }
+    .items-tbl td        { padding: 4pt 6pt; border-bottom: 0.5pt solid #ddd; }
+    .items-tbl .even td  { background: #f8f9fa; }
+    .r { text-align: right; }
+    .c { text-align: center; }
+
+    /* ── 税率注釈 ─────────────────────────────────────────── */
+    .tax-note { font-size: 8pt; color: #666; margin-bottom: 10pt; }
+
+    /* ── 合計欄 ──────────────────────────────────────────── */
+    .totals-wrap   { width: 100%; border-collapse: collapse; margin-bottom: 14pt; }
+    .totals-spacer { width: 54%; }
+    .totals-tbl    { width: 100%; border-collapse: collapse; border: 0.75pt solid #ccc; }
+    .totals-tbl td { padding: 4.5pt 9pt; border-bottom: 0.5pt solid #e0e0e0; font-size: 9pt; }
+    .totals-tbl .t-label  { color: #333; }
+    .totals-tbl .t-amount { text-align: right; }
+    .totals-tbl .grand-total td {
+      background: #1e4d7b; color: #fff; font-weight: bold;
+      font-size: 11pt; border-bottom: none;
+    }
+
+    /* ── 振込先 ──────────────────────────────────────────── */
+    .bank-box       { border: 0.75pt solid #aaa; background: #fafafa; padding: 7pt 10pt; margin-bottom: 10pt; font-size: 8.5pt; }
+    .bank-box-title { font-weight: bold; color: #1e4d7b; margin-bottom: 3pt; }
+
+    /* ── 備考 ────────────────────────────────────────────── */
+    .notes-box       { border: 0.75pt solid #ccc; padding: 7pt 10pt; min-height: 30pt; font-size: 8.5pt; }
+    .notes-box-title { font-weight: bold; color: #555; margin-bottom: 3pt; }
+  </style>
+</head>
+<body>
+
+<!-- ── ヘッダー ─────────────────────────────────────────── -->
+<table class="header-tbl">
+  <tr>
+    <td class="logo-area">
+      {% if logo_data_url %}
+        <img src="{{ logo_data_url }}" alt="logo">
+      {% elif company and company.company_name %}
+        <span>{{ company.company_name }}</span>
+      {% endif %}
+    </td>
+    <td class="title-area">
+      <div class="invoice-title">請　求　書</div>
+      {% if company and company.registration_number %}
+      <div class="reg-num">適格請求書発行事業者　登録番号：{{ company.registration_number }}</div>
+      {% endif %}
+    </td>
+  </tr>
+</table>
+
+<!-- ── 請求書番号・日付 ──────────────────────────────────── -->
+<table class="meta-tbl">
+  <tr><td class="m-label">請求書番号</td><td class="m-val">{{ invoice.invoice_number }}</td></tr>
+  <tr><td class="m-label">発行日</td>    <td class="m-val">{{ invoice.issue_date or "" }}</td></tr>
+  <tr><td class="m-label">支払期限</td>  <td class="m-val">{{ invoice.due_date or "" }}</td></tr>
+</table>
+
+<!-- ── 顧客・自社情報 ────────────────────────────────────── -->
+<table class="parties-tbl">
+  <tr>
+    <td class="col-cust">
+      <div class="cust-name">{{ invoice.customer_name or "（顧客名なし）" }}　御中</div>
+      {% if invoice.customer_address %}
+      <div class="cust-addr">{{ invoice.customer_address }}</div>
+      {% endif %}
+    </td>
+    <td class="col-company">
+      {% if company %}
+      <div class="company-name-bold">{{ company.company_name }}</div>
+      {% if company.address %}{{ company.address }}<br>{% endif %}
+      {% if company.phone %}TEL：{{ company.phone }}<br>{% endif %}
+      {% if company.registration_number %}
+      <span style="font-size:8pt;color:#555;">登録番号：{{ company.registration_number }}</span>
+      {% endif %}
+      {% endif %}
+    </td>
+  </tr>
+</table>
+
+<!-- ── ご請求金額 ─────────────────────────────────────────── -->
+<div class="total-highlight">
+  ご請求金額（税込）：&yen;{{ "{:,.0f}".format(invoice.total) }}
+</div>
+
+<!-- ── 明細テーブル ──────────────────────────────────────── -->
+<table class="items-tbl">
+  <thead>
+    <tr>
+      <th>品名</th>
+      <th class="c">数量</th>
+      <th class="r">単価（円）</th>
+      <th class="r">金額（円）</th>
+      <th class="c">税率</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in invoice.items %}
+    <tr{% if loop.index is even %} class="even"{% endif %}>
+      <td>{{ item.item_name }}</td>
+      <td class="c">{{ item.quantity }}</td>
+      <td class="r">{{ "{:,.0f}".format(item.unit_price) }}</td>
+      <td class="r">{{ "{:,.0f}".format(item.amount) }}</td>
+      <td class="c">{{ item.tax_rate }}%{% if item.tax_rate == 8 %}※{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if invoice.tax_8 and invoice.tax_8 > 0 %}
+<div class="tax-note">※ 軽減税率（8%）対象</div>
+{% endif %}
+
+<!-- ── 合計欄 ─────────────────────────────────────────────── -->
+<table class="totals-wrap">
+  <tr>
+    <td class="totals-spacer"></td>
+    <td>
+      <table class="totals-tbl">
+        <tr>
+          <td class="t-label">小計（税抜）</td>
+          <td class="t-amount">&yen;{{ "{:,.0f}".format(invoice.subtotal) }}</td>
+        </tr>
+        {% if invoice.tax_10 and invoice.tax_10 > 0 %}
+        <tr>
+          <td class="t-label">消費税（10%）</td>
+          <td class="t-amount">&yen;{{ "{:,.0f}".format(invoice.tax_10) }}</td>
+        </tr>
+        {% endif %}
+        {% if invoice.tax_8 and invoice.tax_8 > 0 %}
+        <tr>
+          <td class="t-label">消費税（8% 軽減）</td>
+          <td class="t-amount">&yen;{{ "{:,.0f}".format(invoice.tax_8) }}</td>
+        </tr>
+        {% endif %}
+        <tr class="grand-total">
+          <td>合計（税込）</td>
+          <td class="t-amount">&yen;{{ "{:,.0f}".format(invoice.total) }}</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- ── 振込先 ──────────────────────────────────────────────── -->
+{% if company and company.bank_name %}
+<div class="bank-box">
+  <div class="bank-box-title">【お振込先】</div>
+  {{ company.bank_name }}{% if company.bank_branch %}　{{ company.bank_branch }}{% endif %}　{{ company.account_type }}　{{ company.account_number }}　{{ company.account_holder }}
+</div>
+{% endif %}
+
+<!-- ── 備考 ───────────────────────────────────────────────── -->
+{% if invoice.notes %}
+<div class="notes-box">
+  <div class="notes-box-title">備考</div>
+  {% for line in invoice.notes.split('\n') %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+</div>
+{% endif %}
+
+</body>
+</html>
